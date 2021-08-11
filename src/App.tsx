@@ -1,26 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { listen } from '@tauri-apps/api/event'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { useMachine } from "@xstate/react"
+import { fileMachine } from "./machines/fileMachine"
+import CreateOpenPage from "./components/page-create-open"
+import MainPage from "./components/page-main"
+import './App.css'
+import { useEffect } from 'react'
+
+interface Payload {
+  message: string;
 }
 
-export default App;
+function App() {
+  const [current, send] = useMachine(fileMachine, {
+    devTools: true,
+  })
+
+  console.log(current)
+
+  useEffect(
+    () => {
+      const unlisten = listen<Payload>('FILE_STATE_CHANGE', event => {
+        if (event.payload.message === "CLOSE") {
+          send({ type: 'E_CLOSE' });
+        } else if (event.payload.message === "CREATE") {
+          send({ type: 'E_CREATE' });
+        } else if (event.payload.message === "OPEN") {
+          send({ type: 'E_OPEN' });
+        } else {
+          console.log("Unknown message type " + event.payload.message);
+        }
+      })
+      return () => {
+        unlisten.then((unlisten_fn) => {
+          unlisten_fn();
+        })
+      }
+    },
+    [send] // Only run this once.
+  )
+
+  let component = <h3>NOT IMPLEMENTED</h3>;
+
+  if (current.matches('idle')) {
+    component = <CreateOpenPage />;
+  } else if (current.matches("open")) {
+    component = <MainPage xsend={send}/>;
+  }
+
+  return (
+    component
+  )
+}
+
+export default App

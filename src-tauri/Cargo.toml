@@ -1,0 +1,27 @@
+[package]
+name = "tournament-ark"
+version = "0.1.0"
+description = "TOOOOOOOOOOOUUUUURNAAAAAAAMEEENT AAAAAAAAAAARRRK!!!!!!!!!"
+authors = ["Jessy Diamond Exum"]
+license = "MIT"
+repository = ""
+default-run = "tournament-ark"
+edition = "2018"
+build = "src/build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.0.0-beta.3" }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.0.0-beta.5", features = ["api-all"] }
+diesel = { version = "1.4.7", features = ["sqlite"] }
+diesel_migrations = "1.4.0"
+diesel_derives = "1.4.1"
+
+[features]
+default = [ "custom-protocol" ]
+custom-protocol = [ "tauri/custom-protocol" ]
