@@ -129,6 +129,18 @@ div.form {
   flex-grow: 1;;
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+
+.drop-down-container {
+  /* position: relative;
+  box-sizing: border-box; */
+  flex-grow: 1;
+}
+
 /* .pro-sidebar {
   color: #adadad;
 }
@@ -153,13 +165,56 @@ div.form {
   display: none;
 } */
 
+table.display-table {
+  table-layout: fixed;
+  width: 100%;
+}
 
+table.display-table thead tr,
+table.display-table tbody tr {
+    width:100%;
+    page-break-inside:avoid;
+}
 
-table,td,tr,th {
+.pagebreak-after:after {
+  display: block;
+  content: "\A0";
+  page-break-before: always;
+}
+
+table.border-table {
+  border-spacing: 0;
+}
+
+table.border-table tr td,
+table.border-table tr th {
   border-width: 3px;
   border-color: black;
   border-style: solid;
+  border-bottom: none;
+  border-right: none;
 }
+
+
+table.border-table tr:last-child td,
+table.border-table tr:last-child th {
+  border-bottom: 3px solid black;
+}
+
+table.border-table tr td:last-child,
+table.border-table tr th:last-child {
+  border-right: 3px solid black;
+}
+
+.center-text {
+  text-align: center;
+}
+
+/* table,td,tr,th.display-table {
+  border-width: 3px;
+  border-color: black;
+  border-style: solid;
+} */
 
 
 @media print {
@@ -183,4 +238,20 @@ table,td,tr,th {
     left: 0 !important;
     top: 0 !important;
   }
+
+  table.padded-cell tr td {
+    padding: 15px;
+  }
+
+  .pagebreak {
+    page-break-before: always;
+    page-break-before: always;
+  }
+
+  .pagebreak {
+    /* page-break-before: always;  */
+    /* font-size: larger;
+    page-break-inside:avoid;
+    page-break-after:always; */
+  } /* page-break-after works, as well */
 }

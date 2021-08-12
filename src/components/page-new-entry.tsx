@@ -2,12 +2,12 @@ import React from "react"
 import { HasPageSend } from "../machines/pageMachine"
 import Select, { StylesConfig } from 'react-select'
 import Button from '@material-ui/core/Button';
-import { newEntryMachine, DropDownEntry } from "../machines/newEntryMachine";
+import { newEntryMachine } from "../machines/newEntryMachine";
 import { useMachine } from "@xstate/react";
 // import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import PersonSelect from "./person-select"
-import { Person } from "../models";
+import { Person, DropDownEntry } from "../models";
 
 
 const NewEntryPage: React.FC<HasPageSend> = ({ xpagesend }) => {
@@ -33,7 +33,7 @@ const NewEntryPage: React.FC<HasPageSend> = ({ xpagesend }) => {
     const [, setDivision] = useState(xnewcurrent.context.selected_division)
     const [, setMethod] = useState(xnewcurrent.context.selected_method)
     const [identifier, setidentifier] = useState(xnewcurrent.context.entry_identifier)
-    const [_, setNoOp] = useState<Person|undefined>(undefined)
+    const [, setNoOp] = useState<Person|undefined>(undefined)
 
     const select_styles: StylesConfig<DropDownEntry, false> = {
         menu: (provided, state) => ({

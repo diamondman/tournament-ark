@@ -4,7 +4,6 @@ import { HasSend } from "../machines/fileMachine"
 import { useMachine } from "@xstate/react"
 import { pageMachine } from "../machines/pageMachine"
 import NewEntryPage from "./page-new-entry"
-import PersonSelect from "./person-select"
 import HomePage from "./page-home"
 
 const MainPage: React.FC<HasSend> = ({ xsend }) => {

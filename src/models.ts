@@ -41,3 +41,12 @@ export interface QueryEntriesResult {
     method: Method,
     people: Person[],
 }
+
+
+
+
+
+export interface DropDownEntry {
+    label: string;
+    value: number;
+}

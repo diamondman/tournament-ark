@@ -1,6 +1,7 @@
 import { Machine, assign, DoneInvokeEvent } from "xstate";
 import { invoke } from "@tauri-apps/api"
 import { PageEvent } from "./pageMachine"
+import { DropDownEntry } from "../models";
 
 import { Division, Method, EntryType, Person } from "../models"
 
@@ -9,11 +10,6 @@ interface EntryOptions {
     divisions: ReadonlyArray<Division>,
     methods: ReadonlyArray<Method>,
     entry_types: ReadonlyArray<EntryType>,
-}
-
-export interface DropDownEntry {
-    label: string;
-    value: number;
 }
 
 export interface NewEntryContext {
