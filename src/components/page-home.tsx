@@ -174,7 +174,7 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
                     </td>
                 </tr>
             </table>
-            <table className="display-table border-table padded-cell pagebreak pagebreak-after" >
+            <table className="display-table border-table padded-cell pagebreak-after" >
                 <col width="10%" />
                 <col width="45%" />
                 <col width="15%" />
@@ -260,7 +260,7 @@ const HomePage: React.FC<{}> = () => {
 
     return (
         <div>
-            <div className="flex-row" style={{ width: "100%" }}>
+            <div className="flex-row" style={{ width: "100%" }} id="main-page-settings">
                 <Button variant="contained"
                     onClick={() => { window.print() }}
                 >

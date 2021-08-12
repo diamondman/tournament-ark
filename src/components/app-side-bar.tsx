@@ -15,7 +15,7 @@ import { HasPageSend } from '../machines/pageMachine';
 
 const AppSideBar: React.FC<HasSend & HasPageSend> = ({ xsend, xpagesend }) => {
     return (
-        <div>
+        <div id="navbar">
             <ProSidebar
             //   image={image ? sidebarBg : false}
             //   rtl={rtl}

@@ -210,13 +210,6 @@ table.border-table tr th:last-child {
   text-align: center;
 }
 
-/* table,td,tr,th.display-table {
-  border-width: 3px;
-  border-color: black;
-  border-style: solid;
-} */
-
-
 @media print {
   .App-header {
     background-color: white !important;
@@ -233,25 +226,11 @@ table.border-table tr th:last-child {
   #section-to-print, #section-to-print * {
     visibility: visible !important;
   }
-  #section-to-print {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+  #navbar,
+  #main-page-settings {
+    display: none;
   }
-
   table.padded-cell tr td {
     padding: 15px;
   }
-
-  .pagebreak {
-    page-break-before: always;
-    page-break-before: always;
-  }
-
-  .pagebreak {
-    /* page-break-before: always;  */
-    /* font-size: larger;
-    page-break-inside:avoid;
-    page-break-after:always; */
-  } /* page-break-after works, as well */
 }
