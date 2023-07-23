@@ -7,7 +7,7 @@ pub mod models;
 pub mod schema;
 
 extern crate tauri;
-use tauri::api::dialog;
+use tauri::api::dialog::blocking::FileDialogBuilder;
 use tauri::Manager;
 use tauri::State;
 
@@ -37,16 +37,20 @@ struct Payload {
   message: String,
 }
 
-fn create_file_diag_builder() -> dialog::FileDialogBuilder {
-  let mut fd = dialog::FileDialogBuilder::new();
+fn create_file_diag_builder() -> FileDialogBuilder {
+  println!("create_file_diag_builder() PT 1");
+  let mut fd = FileDialogBuilder::new();
+  println!("create_file_diag_builder() PT 2");
 
   let extensions: Vec<&str> = vec!["tark"];
+  println!("create_file_diag_builder() PT 3");
   fd = fd.add_filter("Tournament ARC Database", &extensions);
+  println!("create_file_diag_builder() PT 4");
 
   fd // return
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 fn create_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
   println!("create_db() invoked from JS!");
   match create_file_diag_builder().save_file() {
@@ -72,7 +76,7 @@ fn create_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
   }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 fn open_db(app_handle: tauri::AppHandle) {
   println!("open_db() invoked from JS!");
   match create_file_diag_builder().pick_file() {
@@ -131,6 +135,11 @@ struct EntryOptions {
 fn list_entry_options(db_: State<TARKContext>) -> EntryOptions {
   let lock = db_.0.lock().unwrap();
   let db = lock.as_ref();
+
+  match db {
+    Some(_) => println!("Opened the DB."),
+    None => println!("Failed to open the DB."),
+  }
 
   let divisions = divisions::table
     .load::<Division>(db.unwrap())
