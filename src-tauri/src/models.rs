@@ -24,10 +24,10 @@ pub struct EntryType {
 }
 
 #[derive(Identifiable, Queryable, Associations, Clone, serde::Serialize)]
-#[belongs_to(EntryType, foreign_key = "entry_type")]
-#[belongs_to(Division, foreign_key = "division_id")]
-#[belongs_to(Method, foreign_key = "method_id")]
-#[table_name = "entries"]
+#[diesel(belongs_to(EntryType, foreign_key = entry_type))]
+#[diesel(belongs_to(Division, foreign_key = division_id))]
+#[diesel(belongs_to(Method, foreign_key = method_id))]
+#[diesel(table_name = entries)]
 pub struct Entry {
   pub id: i32,
   pub identifier: String,
@@ -37,10 +37,8 @@ pub struct Entry {
   pub method_id: i32,
 }
 
-#[derive(
-  Identifiable, Queryable, Associations, Debug, Clone, serde::Serialize, serde::Deserialize,
-)]
-#[table_name = "people"]
+#[derive(Identifiable, Queryable, Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[diesel(table_name = people)]
 pub struct Person {
   pub id: i32,
   pub name: String,
@@ -51,10 +49,10 @@ pub struct Person {
 }
 
 #[derive(Identifiable, Queryable, Associations, Clone, serde::Serialize)]
-#[primary_key(person_id, entry_id)]
-#[belongs_to(Person, foreign_key = "person_id")]
-#[belongs_to(Entry, foreign_key = "entry_id")]
-#[table_name = "person_to_entries"]
+#[diesel(primary_key(person_id, entry_id))]
+#[diesel(belongs_to(Person, foreign_key = person_id))]
+#[diesel(belongs_to(Entry, foreign_key = entry_id))]
+#[diesel(table_name = person_to_entries)]
 pub struct PersonToEntry {
   pub person_id: i32,
   pub entry_id: i32,

@@ -24,11 +24,10 @@ use schema::people::dsl::*;
 #[macro_use]
 extern crate diesel_derives;
 
-#[macro_use]
-extern crate diesel_migrations;
 use diesel::sqlite::SqliteConnection;
 
-diesel_migrations::embed_migrations!();
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 struct TARKContext(std::sync::Mutex<Option<diesel::SqliteConnection>>);
 
@@ -54,9 +53,10 @@ fn create_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
       let path = path_buf.into_os_string().into_string().unwrap();
       println!("Created file {}.", path);
 
-      let connection =
+      let mut connection =
         SqliteConnection::establish(&path).expect(&format!("Error connecting to {}", path));
-      embedded_migrations::run_with_output(&connection, &mut std::io::stdout()).unwrap();
+      connection.run_pending_migrations(MIGRATIONS).unwrap();
+      //embedded_migrations::run_with_output(&connection, &mut std::io::stdout()).unwrap();
       *db.0.lock().unwrap() = Some(connection);
 
       app_handle
@@ -79,9 +79,10 @@ fn open_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
     Some(path_buf) => {
       let path = path_buf.into_os_string().into_string().unwrap();
       println!("Opening file {}.", path);
-      let connection =
+      let mut connection =
         SqliteConnection::establish(&path).expect(&format!("Error connecting to {}", path));
-      embedded_migrations::run_with_output(&connection, &mut std::io::stdout()).unwrap();
+      connection.run_pending_migrations(MIGRATIONS).unwrap();
+      //embedded_migrations::run_with_output(&connection, &mut std::io::stdout()).unwrap();
       *db.0.lock().unwrap() = Some(connection);
 
       app_handle
@@ -112,8 +113,8 @@ fn close_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
 
 #[tauri::command]
 fn list_divisions(db_: State<TARKContext>) -> Vec<Division> {
-  let lock = db_.0.lock().unwrap();
-  let db = lock.as_ref();
+  let mut lock = db_.0.lock().unwrap();
+  let db = lock.as_mut();
   let results = divisions::table
     .limit(5)
     .load::<Division>(db.unwrap())
@@ -135,32 +136,39 @@ struct EntryOptions {
 
 #[tauri::command]
 fn list_entry_options(db_: State<TARKContext>) -> EntryOptions {
-  let lock = db_.0.lock().unwrap();
-  let db = lock.as_ref();
+  let mut lock = db_.0.lock().unwrap();
+  let db_opt = lock.as_mut();
 
-  match db {
-    Some(_) => println!("Opened the DB."),
+  match db_opt {
+    Some(db) => {
+      println!("Opened the DB.");
+
+      let divisions = divisions::table
+        .load::<Division>(db)
+        .expect("Error loading divisions");
+
+      let methods = methods::table
+        .load::<Method>(db)
+        .expect("Error loading methods");
+
+      let entry_types = entry_types::table
+        .load::<EntryType>(db)
+        .expect("Error loading entry_types");
+
+      EntryOptions {
+        divisions: divisions,
+        methods: methods,
+        entry_types: entry_types,
+      }
+    }
     None => {
       println!("Failed to open the DB.");
+      EntryOptions {
+        divisions: vec![],
+        methods: vec![],
+        entry_types: vec![],
+      }
     }
-  }
-
-  let divisions = divisions::table
-    .load::<Division>(db.unwrap())
-    .expect("Error loading divisions");
-
-  let methods = methods::table
-    .load::<Method>(db.unwrap())
-    .expect("Error loading methods");
-
-  let entry_types = entry_types::table
-    .load::<EntryType>(db.unwrap())
-    .expect("Error loading entry_types");
-
-  EntryOptions {
-    divisions: divisions,
-    methods: methods,
-    entry_types: entry_types,
   }
 }
 
@@ -182,72 +190,80 @@ fn insert_update_entry(
   new_method_id: i32,
   new_entry_people: Vec<Person>,
 ) -> Result<(), String> {
-  let lock = db_.0.lock().unwrap();
-  let db = lock.as_ref().unwrap();
+  let mut lock = db_.0.lock().unwrap();
+  let db_opt = lock.as_mut();
 
-  let ret = db.transaction::<(), diesel::result::Error, _>(|| {
-    let mut person_id_list: Vec<i32> = vec![];
+  match db_opt {
+    None => {
+      dbg!("There is no database connection!");
+      Err("There is no database connection!".to_string())
+    }
+    Some(db) => {
+      let ret = db.transaction::<(), diesel::result::Error, _>(|conn| {
+        let mut person_id_list: Vec<i32> = vec![];
 
-    for p in new_entry_people.iter() {
-      if p.id == 0 {
-        let row_count = insert_into(people)
+        for p in new_entry_people.iter() {
+          if p.id == 0 {
+            let row_count = insert_into(people)
+              .values((
+                schema::people::name.eq(&p.name),
+                schema::people::addr.eq(&p.addr),
+                schema::people::phone.eq(&p.phone),
+                schema::people::email.eq(&p.email),
+                schema::people::attributes.eq(&p.attributes),
+              ))
+              .execute(conn)?;
+            assert!(row_count == 1);
+
+            let d = schema::people::table
+              .select(schema::people::id)
+              .order(schema::people::id.desc())
+              .first::<i32>(conn)?;
+            assert!(d != 0);
+
+            person_id_list.push(d);
+          } else {
+            person_id_list.push(p.id);
+          }
+        }
+
+        let row_count = insert_into(entries)
           .values((
-            schema::people::name.eq(&p.name),
-            schema::people::addr.eq(&p.addr),
-            schema::people::phone.eq(&p.phone),
-            schema::people::email.eq(&p.email),
-            schema::people::attributes.eq(&p.attributes),
+            schema::entries::identifier.eq(new_entry_identifier),
+            schema::entries::name.eq(new_entry_name),
+            schema::entries::entry_type.eq(new_entry_type),
+            schema::entries::division_id.eq(new_division_id),
+            schema::entries::method_id.eq(new_method_id),
           ))
-          .execute(db)?;
+          .execute(conn)?;
         assert!(row_count == 1);
+        let entry_id = schema::entries::table
+          .select(schema::entries::id)
+          .order(schema::entries::id.desc())
+          .first::<i32>(conn)?;
+        assert!(entry_id != 0);
 
-        let d = schema::people::table
-          .select(schema::people::id)
-          .order(schema::people::id.desc())
-          .first::<i32>(db)?;
-        assert!(d != 0);
+        for pid in person_id_list {
+          let row_count = insert_into(schema::person_to_entries::table)
+            .values((
+              schema::person_to_entries::person_id.eq(pid),
+              schema::person_to_entries::entry_id.eq(entry_id),
+            ))
+            .execute(conn)?;
+          assert!(row_count == 1);
+        }
 
-        person_id_list.push(d);
-      } else {
-        person_id_list.push(p.id);
+        Ok(())
+      });
+
+      match ret {
+        Ok(()) => Ok(()),
+        Err(e) => {
+          let emsg = format!("{}", e);
+          println!("insert_update_entry: {}", emsg);
+          Err(emsg)
+        }
       }
-    }
-
-    let row_count = insert_into(entries)
-      .values((
-        schema::entries::identifier.eq(new_entry_identifier),
-        schema::entries::name.eq(new_entry_name),
-        schema::entries::entry_type.eq(new_entry_type),
-        schema::entries::division_id.eq(new_division_id),
-        schema::entries::method_id.eq(new_method_id),
-      ))
-      .execute(db)?;
-    assert!(row_count == 1);
-    let entry_id = schema::entries::table
-      .select(schema::entries::id)
-      .order(schema::entries::id.desc())
-      .first::<i32>(db)?;
-    assert!(entry_id != 0);
-
-    for pid in person_id_list {
-      let row_count = insert_into(schema::person_to_entries::table)
-        .values((
-          schema::person_to_entries::person_id.eq(pid),
-          schema::person_to_entries::entry_id.eq(entry_id),
-        ))
-        .execute(db)?;
-      assert!(row_count == 1);
-    }
-
-    Ok(())
-  });
-
-  match ret {
-    Ok(()) => Ok(()),
-    Err(e) => {
-      let emsg = format!("{}", e);
-      println!("insert_update_entry: {}", emsg);
-      Err(emsg)
     }
   }
 }
@@ -269,8 +285,8 @@ fn query_people(
     return vec![];
   }
 
-  let lock = db_.0.lock().unwrap();
-  let db = lock.as_ref();
+  let mut lock = db_.0.lock().unwrap();
+  let db = lock.as_mut();
 
   let mut q = schema::people::table.into_boxed();
 
@@ -317,8 +333,8 @@ fn query_entries(
   entry_method_id: i32,
   person_id: i32,
 ) -> Vec<EntryQueryRsult> {
-  let lock = db_.0.lock().unwrap();
-  let db = lock.as_ref().unwrap();
+  let mut lock = db_.0.lock().unwrap();
+  let db = lock.as_mut().unwrap();
 
   // use schema::entry_types::dsl::*;
   // use schema::divisions::dsl::*;
