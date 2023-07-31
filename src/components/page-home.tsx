@@ -98,34 +98,38 @@ const DefaultHomeSubPage: React.FC<subpage> = ({ data, divisions, methods, entry
 
     return (
         <table className="display-table border-table">
-            <tr>
-                <th>TAG</th>
-                <th>Name</th>
-                <th>Class1</th>
-                <th>Class2</th>
-                <th>Method</th>
-                <th>Division</th>
-                <th>Creator(s)</th>
-            </tr>
-            {
-                [...data].sort((a, b) => {
-                    const ia = parseInt(a.entry.identifier)
-                    const ib = parseInt(b.entry.identifier)
-                    if (ia < ib) return -1;
-                    if (ia > ib) return 1;
-                    return 0;
-                }).map((entry) => {
-                    return <tr>
-                        <td>{entry.entry.identifier}</td>
-                        <td>{entry.entry.name}</td>
-                        <td>{entry.entrytype.first}</td>
-                        <td>{entry.entrytype.second}</td>
-                        <td>{entry.method.name} ({entry.method.abbr})</td>
-                        <td>{entry.division.name} ({entry.division.abbr})</td>
-                        <td>{entry.people.map((p) => p.name).join(", ")}</td>
-                    </tr>
-                })
-            }
+            <thead>
+                <tr>
+                    <th>TAG</th>
+                    <th>Name</th>
+                    <th>Class1</th>
+                    <th>Class2</th>
+                    <th>Method</th>
+                    <th>Division</th>
+                    <th>Creator(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    [...data].sort((a, b) => {
+                        const ia = parseInt(a.entry.identifier)
+                        const ib = parseInt(b.entry.identifier)
+                        if (ia < ib) return -1;
+                        if (ia > ib) return 1;
+                        return 0;
+                    }).map((entry) => {
+                        return <tr>
+                            <td>{entry.entry.identifier}</td>
+                            <td>{entry.entry.name}</td>
+                            <td>{entry.entrytype.first}</td>
+                            <td>{entry.entrytype.second}</td>
+                            <td>{entry.method.name} ({entry.method.abbr})</td>
+                            <td>{entry.division.name} ({entry.division.abbr})</td>
+                            <td>{entry.people.map((p) => p.name).join(", ")}</td>
+                        </tr>
+                    })
+                }
+            </tbody>
         </table>
     )
 }
@@ -155,24 +159,26 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
     const tables = categories.map((category) => {
         return <div>
             <table className="display-table">
-                <tr>
-                    <td>Group: Quilts</td>
-                    <td style={{ textAlign: "right", paddingRight: "1em" }}>
-                        Class: {category.entry_type}{methods[category.method_id-1].abbr}
-                    </td>
-                </tr>
-                <tr>
-                    <td>{entry_types[category.entry_type-1].first}</td>
-                    <td style={{ textAlign: "right", paddingRight: "1em" }}>
-                        {divisions[category.division_id-1].name}
-                    </td>
-                </tr>
-                <tr>
-                    <td>{entry_types[category.entry_type-1].second}</td>
-                    <td style={{ textAlign: "right", paddingRight: "1em" }}>
-                        {methods[category.method_id-1].name}
-                    </td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td>Group: Quilts</td>
+                        <td style={{ textAlign: "right", paddingRight: "1em" }}>
+                            Class: {category.entry_type}{methods[category.method_id-1].abbr}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{entry_types[category.entry_type-1].first}</td>
+                        <td style={{ textAlign: "right", paddingRight: "1em" }}>
+                            {divisions[category.division_id-1].name}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{entry_types[category.entry_type-1].second}</td>
+                        <td style={{ textAlign: "right", paddingRight: "1em" }}>
+                            {methods[category.method_id-1].name}
+                        </td>
+                    </tr>
+                </tbody>
             </table>
             <table className="display-table border-table padded-cell pagebreak-after" >
                 <col width="10%" />
