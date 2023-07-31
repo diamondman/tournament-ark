@@ -99,7 +99,6 @@ fn open_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
 
 #[tauri::command]
 fn close_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
-  *db.0.lock().unwrap() = None;
   app_handle
     .emit_all(
       "FILE_STATE_CHANGE",
@@ -108,6 +107,7 @@ fn close_db(app_handle: tauri::AppHandle, db: State<TARKContext>) {
       },
     )
     .unwrap();
+  *db.0.lock().unwrap() = None;
 }
 
 #[tauri::command]
