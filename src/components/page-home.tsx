@@ -248,12 +248,12 @@ const subpage_dropdown_data: Array<SubViewDropDownEntry> = [
 ]
 
 const HomePage: React.FC<{}> = () => {
-    const [current] = useMachine(pageHomeMachineEntryMachine.withContext({
+    const [current] = useMachine(pageHomeMachineEntryMachine, { context: {
         query_results: [],
         divisions: [],
         methods: [],
         entry_types: [],
-    }));
+    }});
 
     const [subviewindex, setSubviewindex] = useState(0)
     //useState<React.FC<subpage>>(DefaultHomeSubPage)

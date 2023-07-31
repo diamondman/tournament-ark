@@ -130,7 +130,7 @@ interface PersonSelectParams {
 }
 
 const PersonSelect: React.FC<PersonSelectParams> = ({ onSelected }) => {
-    const [current, send] = useMachine(personSelectMachine.withContext({
+    const [current, send] = useMachine(personSelectMachine, { context: {
         person_id: 0,
         person_name: "",
         person_addr: "",
@@ -138,7 +138,7 @@ const PersonSelect: React.FC<PersonSelectParams> = ({ onSelected }) => {
         person_email: "",
         possible_matches: [],
         onSelected: onSelected,
-    }));
+    }});
 
     return (
         <div className="person-form-outer">

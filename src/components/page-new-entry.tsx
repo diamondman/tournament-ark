@@ -11,7 +11,7 @@ import { Person, DropDownEntry } from "../models";
 
 
 const NewEntryPage: React.FC<HasPageSend> = ({ xpagesend }) => {
-    const [xnewcurrent, xnewsend] = useMachine(newEntryMachine.withContext({
+    const [xnewcurrent, xnewsend] = useMachine(newEntryMachine, { context: {
         category_data: [],
         division_data: [],
         method_data: [],
@@ -25,7 +25,7 @@ const NewEntryPage: React.FC<HasPageSend> = ({ xpagesend }) => {
         selected_category: undefined,
         selected_division: undefined,
         selected_method: undefined,
-    }))
+    }});
     console.log("CONTEXT", xnewcurrent.context)
 
     const [name, setName] = useState(xnewcurrent.context.entry_name)
