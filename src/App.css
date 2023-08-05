@@ -160,12 +160,6 @@ table.display-table tbody tr {
     page-break-inside:avoid;
 }
 
-.pagebreak-after:after {
-  display: block;
-  content: "\A0";
-  page-break-before: always;
-}
-
 table.border-table {
   border-spacing: 0;
 }
@@ -193,6 +187,40 @@ table.border-table tr th:last-child {
   text-align: center;
 }
 
+div.entry-card-list {
+
+}
+
+div.entry-card-list {
+
+}
+
+div.entry-card {
+  text-align: center;
+
+  align-items: center;
+  justify-content: space-evenly;
+
+  margin: 5%;
+}
+
+div.entry-card div.card-field {
+  font-size: 2.5em;
+  padding: 12px;
+}
+
+div.entry-card div.identifier {
+  font-size: 4.5em;
+}
+div.entry-card div.name {
+}
+div.entry-card div.people {
+}
+div.entry-card div.division {
+}
+div.entry-card div.method {
+}
+
 @media print {
   .App-header {
     background-color: white !important;
@@ -215,5 +243,11 @@ table.border-table tr th:last-child {
   }
   table.padded-cell tr td {
     padding: 15px;
+  }
+
+  .pagebreak-after:after {
+    display: block;
+    content: "\A0";
+    page-break-before: always;
   }
 }

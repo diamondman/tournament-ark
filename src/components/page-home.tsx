@@ -142,7 +142,7 @@ interface fullCategory {
 
 const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, methods, entry_types }) => {
     let s = new ObjectSet<fullCategory>();
-    data.map((elem) => {
+    data.forEach((elem) => {
         s.add({
             entry_type: elem.entry.entry_type,
             division_id: elem.entry.division_id,
@@ -157,7 +157,7 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
     console.log(categories)
 
     const tables = categories.map((category) => {
-        return <div>
+        return <div className="pagebreak-after">
             <table className="display-table">
                 <tbody>
                     <tr>
@@ -180,7 +180,7 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
                     </tr>
                 </tbody>
             </table>
-            <table className="display-table border-table padded-cell pagebreak-after" >
+            <table className="display-table border-table padded-cell" >
                 <col width="10%" />
                 <col width="45%" />
                 <col width="15%" />
@@ -190,7 +190,7 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
                     <tr>
                         <th>Exhibit<br />Tag</th>
                         <th>Entrant</th>
-                        <th>Ribon</th>
+                        <th>Ribbon</th>
                         <th>Champion/<br />Reserve<br /> Champion</th>
                         <th>Grand/<br />Reserve Grand<br /> Champion</th>
                     </tr>
@@ -227,6 +227,111 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
     </React.Fragment>
 }
 
+
+export interface FilterDivisionDropDownEntry {
+    index: number;
+    label: string;
+    value: number;
+}
+
+const filter_division_select_styles: StylesConfig<FilterDivisionDropDownEntry, false> = {
+    menu: (provided, state) => ({
+        ...provided,
+        backgroundColor: "rgb(128,128,128)",
+    })
+}
+
+const EntryCardHomeSubPage: React.FC<subpage> = ({ data, divisions, methods, entry_types }) => {
+    const num_per_page = 2;
+
+    const [filter_division_index, setfilter_division_index] = useState(0)
+
+    let filter_division_dropdown_data: Array<FilterDivisionDropDownEntry> = [
+        { index: 0, label: "Show All Divisions", value: 0 }
+    ]
+    divisions.forEach((division, i_div) => {
+        filter_division_dropdown_data.push(
+            { index: i_div + 1, label: `Show Only ${division.name} (${division.abbr})`, value: division.id }
+        )
+    })
+
+    const sorted_data = [...data].sort((a, b) => {
+        const ia = parseInt(a.entry.identifier)
+        const ib = parseInt(b.entry.identifier)
+        if (ia < ib) return -1;
+        if (ia > ib) return 1;
+        return 0;
+    }).filter((entry) => {
+        if (filter_division_index === 0) {
+            return true;
+        }
+        if (filter_division_dropdown_data[filter_division_index].value === entry.entry.division_id) {
+            return true
+        }
+        return false;
+    })
+
+    if (sorted_data.length === 0) { // Protect against /0.
+        return <div>No entries available.</div>;
+    }
+
+    const num_pages = Math.ceil(sorted_data.length/num_per_page);
+
+    //return <div>{num_pages}</div>;
+    //const d_iter = sorted_data[Symbol.iterator]();
+
+    var i_entry = 0;
+    return <div>
+        <div className="flex-row" style={{ width: "100%" }} id="main-page-settings">
+            <Select
+                className="drop-down-container"
+                options={filter_division_dropdown_data}
+                styles={filter_division_select_styles}
+                defaultValue={filter_division_dropdown_data[filter_division_index]}
+                onChange={(e) => {
+                    if (e?.value === undefined) {
+                        setfilter_division_index(0);
+                    } else {
+                        setfilter_division_index(e?.index)
+                    }
+                }}
+            />
+        </div>
+        <div className="entry-card-list">
+            {
+                Array(num_pages).fill(0).map((_, page_num) => {
+                    const page_style = "entry-card-list-page" + (page_num === (num_pages-1) ? "" : " pagebreak-after");
+                    return <div className={page_style}>
+                        {
+                            Array(num_per_page).fill(0).map((_) => {
+                                //const {value: entry, done} = d_iter.next();
+
+                                //return <div>--{tmp++} {done?"true":"false"}</div>
+                                if(i_entry > (sorted_data.length-1)){
+                                    return <div className="entry-card"></div>
+                                }
+
+                                const entry = sorted_data[i_entry++];
+
+                                return <div className="entry-card">
+                                    <div className="card-field identifier">{entry.entry.identifier}</div>
+                                    <div className="card-field name">{entry.entry.name}</div>
+                                    <div className="card-field people">{entry.people.map((p) => p.name).join(", ")}</div>
+                                    <div className="card-field division">{entry.division.name}</div>
+                                    <div className="card-field method">{entry.method.name}</div>
+                                </div>
+                            })
+                        }
+
+                        {/* <p style={{ pageBreakAfter: "always" }}>&nbsp;</p> */}
+                    </div>
+                })
+            }
+        </div>
+    </div>
+}
+
+
 export interface SubViewDropDownEntry {
     index: number;
     label: string;
@@ -245,6 +350,7 @@ const select_styles: StylesConfig<SubViewDropDownEntry, false> = {
 const subpage_dropdown_data: Array<SubViewDropDownEntry> = [
     { index: 0, label: "Show All Entries", value: DefaultHomeSubPage },
     { index: 1, label: "Show Entries by class + division + technique", value: FullClassificationHomeSubPage },
+    { index: 2, label: "Show Entry Cards", value: EntryCardHomeSubPage },
 ]
 
 const HomePage: React.FC<{}> = () => {
