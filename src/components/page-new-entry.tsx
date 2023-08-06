@@ -1,7 +1,7 @@
 import React from "react"
 import { HasPageSend } from "../machines/pageMachine"
 import Select, { StylesConfig } from 'react-select'
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import { newEntryMachine } from "../machines/newEntryMachine";
 import { useMachine } from "@xstate/react";
 // import Form from "react-bootstrap/Form";

@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { Machine, assign, DoneInvokeEvent } from "xstate";
 import { useMachine } from "@xstate/react";
 import { QueryEntriesResult } from "../models"
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import Select, { StylesConfig } from 'react-select'
 import { Division, Method, EntryType } from "../models";
 import { useState } from "react";
