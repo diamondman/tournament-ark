@@ -2,6 +2,8 @@
     /* text-align: center; */
     display: flex;
     flex-direction: row;
+    width: 100%;
+    height: 100%;
 }
 
 /* .App-logo {
@@ -37,6 +39,7 @@
   justify-content: left;
   font-size: calc(10px + 2vmin);
   color: white;
+  margin-left: 270px;
 }
 
 /* .App-link {
@@ -51,6 +54,13 @@
   cursor: pointer;
   color: #61dafb;
   margin-bottom: 5vh;
+}
+
+#navbar {
+  position: fixed;
+  bottom:0;
+  top:0;
+  width:270px;
 }
 
 @keyframes App-logo-spin {
@@ -230,6 +240,7 @@ div.entry-card div.method {
   .App-main-header {
     color: black !important;
     font-size: 10pt !important;
+    margin-left: 0px;
   }
   body * {
     visibility: hidden !important;
