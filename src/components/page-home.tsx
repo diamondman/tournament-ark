@@ -373,11 +373,6 @@ const HomePage: React.FC<{}> = () => {
     return (
         <div>
             <div className="flex-row" style={{ width: "100%" }} id="main-page-settings">
-                <Button variant="contained"
-                    onClick={() => { window.print() }}
-                >
-                    Print
-                </Button >
                 <Select
                     className="drop-down-container"
                     options={subpage_dropdown_data}

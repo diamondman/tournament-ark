@@ -7,7 +7,7 @@ import {
     SidebarFooter,
     SidebarContent,
 } from 'react-pro-sidebar';
-import { AiOutlineSetting, AiOutlinePlus, AiOutlineHome } from 'react-icons/ai';
+import { AiOutlineSetting, AiOutlinePlus, AiOutlineHome, AiFillPrinter } from 'react-icons/ai';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { invoke } from "@tauri-apps/api"
 import { HasSend } from "../machines/fileMachine"
@@ -101,6 +101,13 @@ const AppSideBar: React.FC<HasSend & HasPageSend> = ({ xsend, xpagesend }) => {
 
                 <SidebarFooter style={{ textAlign: 'center' }}>
                     <Menu iconShape="circle">
+                        <MenuItem
+                            icon={<AiFillPrinter />}
+                            // suffix={<span className="badge red">new</span>}
+                                onClick={() => { window.print() }}
+                        >
+                            Print
+                        </MenuItem>
                         <MenuItem
                             icon={<AiOutlineSetting />}
                             onClick={() => {
