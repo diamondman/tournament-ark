@@ -23,6 +23,9 @@ diesel = { version = "2.1.0", features = ["sqlite"] }
 diesel_migrations = "2.1.0"
 diesel_derives = "2.1.0"
 
+[target.'cfg(target_os = "windows")'.dependencies]
+libsqlite3-sys = {version = "^0", features = ["bundled"] }
+
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
