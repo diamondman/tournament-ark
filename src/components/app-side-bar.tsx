@@ -7,7 +7,16 @@ import {
     SidebarFooter,
     SidebarContent,
 } from 'react-pro-sidebar';
-import { AiOutlineSetting, AiOutlinePlus, AiOutlineHome, AiFillPrinter } from 'react-icons/ai';
+import {
+    AiOutlineSetting,
+    AiOutlinePlus,
+    AiOutlineHome,
+    AiOutlineOrderedList,
+    AiFillPrinter
+} from 'react-icons/ai';
+import { BsPeopleFill } from 'react-icons/bs';
+import { MdCategory } from 'react-icons/md';
+import { HiOutlineDocumentDuplicate } from 'react-icons/hi';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { invoke } from "@tauri-apps/api"
 import { HasSend } from "../machines/fileMachine"
@@ -44,6 +53,17 @@ const AppSideBar: React.FC<HasSend & HasPageSend> = ({ xsend, xpagesend }) => {
                 <SidebarContent>
                     <Menu iconShape="circle">
                         <MenuItem
+                            icon={<AiOutlinePlus />}
+                            // suffix={<span className="badge red">new</span>}
+                            onClick={() => {
+                                xpagesend({ type: "PE_ADD_ENTRY" });
+                            }}
+                        >
+                            Add Entry
+                        </MenuItem>
+                    </Menu>
+                    <Menu iconShape="circle">
+                        <MenuItem
                             icon={<AiOutlineHome />}
                             // suffix={<span className="badge red">new</span>}
                             onClick={() => {
@@ -52,16 +72,42 @@ const AppSideBar: React.FC<HasSend & HasPageSend> = ({ xsend, xpagesend }) => {
                         >
                             Home
                         </MenuItem>
-                    </Menu>
-                    <Menu iconShape="circle">
                         <MenuItem
-                            icon={<AiOutlinePlus />}
+                            icon={<AiOutlineOrderedList />}
                             // suffix={<span className="badge red">new</span>}
                             onClick={() => {
-                                xpagesend({ type: "PE_ADD_ENTRY" });
+                                xpagesend({ type: "PE_LIST_ENTRIES" });
                             }}
                         >
-                            Add Entry
+                            Entries
+                        </MenuItem>
+                        <MenuItem
+                            icon={<MdCategory />}
+                            // suffix={<span className="badge red">new</span>}
+                            onClick={() => {
+                                xpagesend({ type: "PE_LIST_CATEGORIES" });
+                            }}
+                        >
+                            Categories
+                        </MenuItem>
+                        <MenuItem
+                            icon={<HiOutlineDocumentDuplicate />}
+                            // suffix={<span className="badge red">new</span>}
+                            // style={xpagecurrent.matches("") ? { color: 'skyblue' } : {}}
+                            onClick={() => {
+                                xpagesend({ type: "PE_LIST_ENTRY_CARDS" });
+                            }}
+                        >
+                            Entry Cards
+                        </MenuItem>
+                        <MenuItem
+                            icon={<BsPeopleFill style={{ color: 'red' }} />}
+                            // suffix={<span className="badge red">new</span>}
+                            onClick={() => {
+                                xpagesend({ type: "PE_LIST_PEOPLE" });
+                            }}
+                        >
+                            People
                         </MenuItem>
                     </Menu>
                     {/* <Menu iconShape="circle">
