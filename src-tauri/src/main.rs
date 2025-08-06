@@ -7,6 +7,7 @@ pub mod models;
 pub mod schema;
 
 extern crate tauri;
+use diesel::dsl::count_distinct;
 use tauri::api::dialog::blocking::FileDialogBuilder;
 use tauri::Manager;
 use tauri::State;
@@ -416,6 +417,89 @@ fn query_entries(
   result
 }
 
+
+#[derive(Clone, serde::Serialize)]
+struct EntryTypeStatistics {
+  count: i64,
+  division_id: i64,
+  division: String,
+  entry_type: i64,
+  class: String,
+  technique: String,
+  method_id: i64,
+  method: String,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct StatisticsQueryResult {
+  entry_count: i64,
+  entrant_count: i64,
+  entry_type_stats: Vec<EntryTypeStatistics>,
+}
+
+#[tauri::command]
+fn query_statistics(
+  db_: State<TARKContext>,
+) -> Result<StatisticsQueryResult, ()> {
+  let mut lock = db_.0.lock().unwrap();
+  let db_opt = lock.as_mut();
+
+  match db_opt {
+    Some(db) => {
+      println!("Opened the DB.");
+
+      let total_entries: i64 = schema::entries::table
+              .count()
+              .get_result(db)
+              .expect("Error loading total entry count");
+
+      let total_participants: i64 = schema::people::table
+              .inner_join(schema::person_to_entries::table)
+              .select(count_distinct(schema::people::id))
+              .get_result(db)
+              .expect("Error loading total participant count");
+
+      //const group_stats: Vec<EntryTypeStatistics> =
+        //count: i64,
+        //division_id: i64,
+        //division: String,
+        //entry_type: i64,
+        //class: String,
+        //technique: String,
+        //method_id: i64,
+        //method: String, 
+      // schema::entries::table
+      //   .inner_join(schema::person_to_entries::table)
+      //   .inner_join(schema::entry_types::table)
+      //   .inner_join(schema::divisions::table)
+      //   .inner_join(schema::methods::table)
+      //   .group_by((
+      //     schema::entry_types::id,
+      //     schema::divisions::id,
+      //     schema::methods::id,
+      //   ))
+      //         .select((
+      //           count_distinct(schema::people::id),
+      //           schema::divisions::id, //schema::divisions::name,
+      //           schema::entry_types::id, //schema::entry_types::first, schema::entry_types::second,
+      //           schema::methods::id, //schema::methods::name,
+      //         ))
+      //         .get_result(db)
+      //         .expect("Error loading entry statistics");
+
+      Ok(StatisticsQueryResult {
+        entry_count: total_entries,
+        entrant_count: total_participants,
+        entry_type_stats: vec![],
+      })
+    }
+    None => {
+      println!("Failed to open the DB.");
+      Err(())
+    }
+  }
+}
+
 fn main() {
   tauri::Builder::default()
     .manage(TARKContext(Default::default()))
@@ -428,6 +512,7 @@ fn main() {
       insert_update_entry,
       query_people,
       query_entries,
+      query_statistics,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
