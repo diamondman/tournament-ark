@@ -112,6 +112,14 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
     console.log(categories)
 
     const tables = categories.map((category) => {
+        let filtered_data = data.filter((entry) => {
+            if (category.entry_type === entry.entry.entry_type
+                && category.division_id === entry.entry.division_id
+                && category.method_id === entry.entry.method_id) {
+                    return true
+                }
+            return false;
+        });
         return <div className="pagebreak-after">
             <table className="display-table">
                 <tbody>
@@ -133,6 +141,10 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
                             {methods[category.method_id-1].name}
                         </td>
                     </tr>
+                    <tr>
+                        <td>{filtered_data.length} Entries</td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
             <table className="display-table border-table padded-cell" >
@@ -152,14 +164,7 @@ const FullClassificationHomeSubPage: React.FC<subpage> = ({ data, divisions, met
                 </thead>
                 <tbody className="pagebreak">
                     {
-                        data.filter((entry) => {
-                            if (category.entry_type === entry.entry.entry_type
-                                && category.division_id === entry.entry.division_id
-                                && category.method_id === entry.entry.method_id) {
-                                return true
-                            }
-                            return false;
-                        }).map((entry) => {
+                        filtered_data.map((entry) => {
                             return <tr>
                                 <td className="pagebreak center-text">{entry.entry.identifier}</td>
                                 <td>{entry.people.map((p) => p.name).join(", ")}</td>
